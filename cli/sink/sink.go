@@ -19,7 +19,7 @@ type Sink struct {
     Args []string
 }
 
-func Initialize(argsWithoutExe[] string) (*Sink, error){
+func Initialize(args_without_exe[] string) (*Sink, error){
     sink_state, err := state.GetState()
     if err != nil {
         return new(Sink), err
@@ -27,8 +27,8 @@ func Initialize(argsWithoutExe[] string) (*Sink, error){
 
 
     command := ""
-    if len(argsWithoutExe) != 0 {
-        command = argsWithoutExe[0]
+    if len(args_without_exe) != 0 {
+        command = args_without_exe[0]
     }
 
     function, exists := commandMap[command]
@@ -37,8 +37,8 @@ func Initialize(argsWithoutExe[] string) (*Sink, error){
     }
 
     args := make([]string, 0)
-    if len(argsWithoutExe) > 1 {
-        args = argsWithoutExe[1:]
+    if len(args_without_exe) > 1 {
+        args = args_without_exe[1:]
     }
     sink := &Sink{State: sink_state, Command: function, Args: args}
     return sink, err
