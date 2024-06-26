@@ -1,8 +1,14 @@
 package sink;
 
+import (
+    "fmt"
+)
+func (sink *Sink) Init() (string, error){
+    if !sink.State.SinkInitialized {
+        return "", fmt.Errorf("Sink repository already initialized in %s", sink.State.Path)
+    }
 
-func (sink *Sink) Init() {
-    panic("Init() not implemented yet")
+    return fmt.Sprintf("New repository initialized in %s", sink.State.Path), nil 
 }
 
 

@@ -6,7 +6,7 @@ import (
 )
 
 
-var commandMap = map[string]func(*Sink){
+var commandMap = map[string]func(*Sink)(string, error){
     "": (*Sink).Default,
     "init": (*Sink).Init,
     "status": (*Sink).Status,
@@ -15,7 +15,7 @@ var commandMap = map[string]func(*Sink){
 
 type Sink struct {
     State *state.State
-    Command func(*Sink)
+    Command func(*Sink) (string, error)
     Args []string
 }
 

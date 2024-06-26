@@ -1,7 +1,7 @@
 package sink;
 
 
-func (sink *Sink) Help() {
+func (sink *Sink) Help() (string, error) {
     panic("Help() not implemented yet")
 }
 
