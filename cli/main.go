@@ -10,12 +10,13 @@ import (
 func main(){
     args := os.Args[1:]
     
-    sink, err := sink.Initialize(args)
+    commandInstance, err := sink.Initialize(args)
+
     if err != nil {
         panic(err)
     }
 
-    msg, err := sink.Command(sink)
+    msg, err := commandInstance.Exec()
     if err != nil {
         fmt.Println("Fatal error occurred:")
         fmt.Println(err)

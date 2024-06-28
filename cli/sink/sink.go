@@ -6,41 +6,43 @@ import (
 )
 
 
-var commandMap = map[string]func(*Sink)(string, error){
-    "": (*Sink).Default,
-    "init": (*Sink).Init,
-    "status": (*Sink).Status,
-    "help": (*Sink).Help,
+type Command interface {
+    Exec() (string, error)
+}
+
+var commandMap = map[string]func(*Sink) Command {
+    "": MakeDefaultCommand,
+    "init": MakeInitCommand,
+    "status": MakeStatusCommand,
+    "help": MakeHelpCommand,
 }
 
 type Sink struct {
     State *state.State
-    Command func(*Sink) (string, error)
     Args []string
 }
 
-func Initialize(args_without_exe[] string) (*Sink, error){
+func Initialize(args_without_exe[] string) (Command, error){
     sink_state, err := state.GetState()
     if err != nil {
-        return new(Sink), err
+        return nil, err
     }
 
+
+    args := make([]string, 0)
+    if len(args_without_exe) > 1 {
+        args = args_without_exe[1:]
+    }
 
     command := ""
     if len(args_without_exe) != 0 {
         command = args_without_exe[0]
     }
 
-    function, exists := commandMap[command]
-    if !exists {
-        function = commandMap["help"]
-    }
+    sinkInstance := Sink{sink_state, args}
+    makeCommand, _ := commandMap[command]
+    commandInstance := makeCommand(&sinkInstance)
 
-    args := make([]string, 0)
-    if len(args_without_exe) > 1 {
-        args = args_without_exe[1:]
-    }
-    sink := &Sink{State: sink_state, Command: function, Args: args}
-    return sink, err
+    return commandInstance, nil 
 }
 
