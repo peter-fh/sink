@@ -28,7 +28,8 @@ func nuke(dir string) error{
     }
     for _, entry := range c {
         if entry.Name() == ".sink" {
-            err := os.RemoveAll(entry.Name())
+            sink_path := filepath.Join(dir, entry.Name())
+            err := os.RemoveAll(sink_path)
             if err != nil {
                 return err
             }

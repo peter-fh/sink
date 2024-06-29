@@ -36,7 +36,7 @@ func (i InitCommand) Log() (bool, string) {
     if len(i.sinkInstance.Args) == 1 {
         command += " " + i.sinkInstance.Args[0]
     }
-    return true, fmt.Sprintf("%s <%s>", now, command)
+    return true, fmt.Sprintf("<%s> <%s>", now, command)
 }
 
 func MakeInitCommand(s *Sink) (Command) {
