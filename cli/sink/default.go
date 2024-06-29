@@ -24,7 +24,12 @@ func (d DefaultCommand) Exec() (string, error){
     return msg, nil
 }
 
+func (d DefaultCommand) Log() (bool, string) {
+    return false, ""
+}
 
 func MakeDefaultCommand(s *Sink) (Command) {
     return DefaultCommand{s} 
 }
+
+

@@ -24,5 +24,6 @@ func main(){
     }
 
     fmt.Println(msg)
+    sink.WriteLog(commandInstance)
 
 }
