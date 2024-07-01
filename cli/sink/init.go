@@ -68,6 +68,13 @@ func (s *Sink) createDirectory() error {
     }
 
     err = os.Chdir(sink_path)
+    if err != nil {
+        return err
+    }
+    err = os.Mkdir("data", 0755)
+    if err != nil {
+        return err
+    }
 
     return nil
 }
