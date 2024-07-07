@@ -9,7 +9,9 @@ import (
 type State struct {
     Path string
     SinkInitialized bool
-    SinkFile string
+    RepositoryName string
+    IsLinked bool
+    ConfigOptions Config
 }
 
 
@@ -26,12 +28,21 @@ func GetState() (*State, error) {
     _, err = os.Stat(sinkPath)
     if errors.Is(err, os.ErrNotExist) {
         state.SinkInitialized = false
-    } else if err == nil {
-        state.SinkInitialized = true
-        state.SinkFile = sinkPath
-    } else {
+    } else if err != nil {
+        state.SinkInitialized = false
         return state, err
+    } else {
+        state.SinkInitialized = true
     }
 
+
     return state, nil
+}
+
+func (s *State) SinkPath() string {
+    return filepath.Join(s.Path, ".sink")
+}
+
+func (s *State) ConfigPath() string {
+    return filepath.Join(s.SinkPath(), "config.json")
 }

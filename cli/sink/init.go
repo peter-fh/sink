@@ -26,6 +26,13 @@ func (i InitCommand) Exec() (string, error){
         return "", err
     }
 
+    i.sinkInstance.State.SinkInitialized = true
+
+    err = i.sinkInstance.State.InitializeConfig()
+    if err != nil {
+        return "", err
+    }
+
     msg := fmt.Sprintf("New repository initialized in %s", path)
     return msg, nil 
 }

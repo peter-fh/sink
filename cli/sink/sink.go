@@ -4,9 +4,10 @@ package sink;
 import (
     "cli/state"
     "os"
-    "fmt"
 )
 
+var SinkAddress string = "http://localhost:8080"
+var SinkVersion string = "0.1"
 
 type Sink struct {
     State *state.State
@@ -18,12 +19,17 @@ type Command interface {
     Log() (bool, string)
 }
 
+
 var commandMap = map[string]func(*Sink) Command {
     "": MakeDefaultCommand,
     "init": MakeInitCommand,
     "status": MakeStatusCommand,
     "help": MakeHelpCommand,
     "nuke": MakeNukeCommand,
+    "track": MakeTrackCommand,
+    "ping": MakePingCommand,
+    "link": MakeLinkCommand,
+    "clone": MakeCloneCommand,
 }
 
 
@@ -44,14 +50,14 @@ func Initialize(args_without_exe[] string) (Command, error){
         command = args_without_exe[0]
     }
 
-    sinkInstance := Sink{sink_state, args}
-    makeCommand, found := commandMap[command]
+    sink_instance := Sink{sink_state, args}
+    make_command, found := commandMap[command]
     if !found {
-        makeCommand = MakeHelpCommand
+        make_command = MakeHelpCommand
     }
-    commandInstance := makeCommand(&sinkInstance)
+    command_instance := make_command(&sink_instance)
 
-    return commandInstance, nil 
+    return command_instance, nil 
 }
 
 func WriteLog(c Command){
@@ -63,7 +69,6 @@ func WriteLog(c Command){
 
     
     msg_bytes := []byte(msg)
-    fmt.Println("logging:", msg)
     err := os.WriteFile("log", msg_bytes, 0644)
     
     

@@ -28,58 +28,58 @@ func (s *Sink) track(file_path string) {
     if err != nil {
         panic(err)
     }
+
     if !info.IsDir() {
+        s.cpFile(file_path)
+    } else {
+        s.cpDir(file_path)
     }
 }
 
-func (s *Sink) cpTrackedFile(tracked_file_path string, tracked_file_info os.FileInfo) error {
-    sink_path := s.State.Path
-    sink_data_path := filepath.Join(sink_path, ".sink", "data")
-    copied_file_path := filepath.Join(sink_data_path, tracked_file_info.Name())
 
-    source_file, err := os.Open(tracked_file_path)
+func (s *Sink) dataPath(tracked_file string) string{
+    return filepath.Join(s.State.Path, ".sink", "data", tracked_file)
+}
+
+func (s *Sink) repositoryPath(tracked_file string) string {
+    return filepath.Join(s.State.Path, tracked_file)
+}
+
+func (s *Sink) cpFile(tracked_file string) error {
+    copied_file_path := s.dataPath(tracked_file)
+    source_file_path := s.repositoryPath(tracked_file)
+
+
+    source_file, err := os.Create(source_file_path)
     if err != nil {
         return err
     }
+
     destination_file, err := os.Create(copied_file_path)
     if err != nil {
         return err
     }
+
     _, err = io.Copy(source_file, destination_file)
+
     if err != nil {
         return err
     }
+
     err = destination_file.Sync()
     if err != nil {
         return err
     }
+
     return nil
 }
 
 
-func (s *Sink) cpDir(tracked_dir_path string, tracked_dir_info os.FileInfo) error {
-    panic("cpDir not implemented yet")
-    sink_path := s.State.Path
-    sink_data_path := filepath.Join(sink_path, ".sink", "data")
-    copied_dir_path := filepath.Join(sink_data_path, tracked_dir_info.Name())
+func (s *Sink) cpDir(tracked_dir string) error {
+    copied_dir_path := s.dataPath(tracked_dir)
 
-    source_file, err := os.Open(tracked_file_path)
-    if err != nil {
-        return err
-    }
-    destination_file, err := os.Create(copied_file_path)
-    if err != nil {
-        return err
-    }
-    _, err = io.Copy(source_file, destination_file)
-    if err != nil {
-        return err
-    }
-    err = destination_file.Sync()
-    if err != nil {
-        return err
-    }
-    return nil
+    err := os.Mkdir(copied_dir_path, 0755)
+    return err
 }
 
 
