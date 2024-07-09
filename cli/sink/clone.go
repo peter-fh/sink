@@ -1,10 +1,11 @@
-package sink;
+package sink
 
 import (
+    "encoding/json"
     "fmt"
-    "net/http"
     "io"
-    "bufio"
+    "net/http"
+    "os"
 )
 
 
@@ -39,9 +40,15 @@ func MakeCloneCommand(s *Sink) Command {
 }
 
 
+type RepositoryStructure struct {
+    Dirs []string   `json:"dirs"`
+    Files []string  `json:"files"`
+}
+
+
 func cloneStructureRequest(repository_name string) (string, error) {
-    clone_address := SinkAddress + "/clone/structure"
-    req, err := http.NewRequest("GET", clone_address, nil)
+    clone_structure_address := SinkAddress + "/clone/structure"
+    req, err := http.NewRequest("GET", clone_structure_address, nil)
 
     if err != nil {
         return "", err
@@ -60,24 +67,61 @@ func cloneStructureRequest(repository_name string) (string, error) {
         return "", err
     }
 
-    msg := ""
-    scanner := bufio.NewScanner(resp.Body)
-    for scanner.Scan() {
-        msg += scanner.Text()
-    }
-
-    return msg, nil
-}
-
-
-func cloneRead(resp *http.Response) error {
+    structure := RepositoryStructure{}
 
     body, err := io.ReadAll(resp.Body)
     if err != nil {
-        return err
+        return "", err
+    }
+    json.Unmarshal(body, &structure)
+    fmt.Println("dirs:", structure.Dirs)
+    fmt.Println("files:", structure.Files)
+
+    err = clone(repository_name, structure)
+    if err != nil {
+        return "", err
+    }
+    return "cloned the repo", nil
+}
+
+
+func clone(repo string, structure RepositoryStructure) error {
+    clone_file_address := SinkAddress + "/clone/file"
+    for _, dir := range structure.Dirs {
+        err := os.Mkdir(dir, 0755)
+        if err != nil {
+            return fmt.Errorf("Error creating directory structure: %v", err) 
+        }
     }
 
-    fmt.Println(body)
+
+    agent := fmt.Sprintf("SinkCLI/%s", SinkVersion)
+    client := &http.Client{}
+    for _, file := range structure.Files {
+        req, err := http.NewRequest("GET", clone_file_address, nil)
+        if err != nil {
+            return err
+        }
+        req.Header.Set("User-Agent", agent)
+        req.Header.Set("Accept", "text/plain")
+        req.Header.Set("Repository", repo)
+        req.Header.Set("File", file)
+        resp, err := client.Do(req)
+        if err != nil {
+            return err
+        }
+        body, err := io.ReadAll(resp.Body)
+        if err != nil {
+            return err
+        }
+        err = os.WriteFile(file, body, 0755)
+        if err != nil {
+            return err
+        }
+
+    }
 
     return nil
 }
+
+
