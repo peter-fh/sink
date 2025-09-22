@@ -65,13 +65,14 @@ func (s *State) writeConfig() error {
     if !s.SinkInitialized {
         return fmt.Errorf("Shit programmer alert\nWriting config in uninitialized state")
     }
+    config_file_path := s.ConfigPath()
+
+
 
     json_bytes, err := json.Marshal(s.ConfigOptions)
     if err != nil {
         return err
     }
-    
-    config_file_path := s.ConfigPath()
 
     return os.WriteFile(config_file_path, json_bytes, os.ModePerm)
 
